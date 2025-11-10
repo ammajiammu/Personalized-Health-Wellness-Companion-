@@ -1,0 +1,320 @@
+‎backend/routes/recommendationRoutes.js‎
+Original file line number	Diff line number	Diff line change
+@@ -3,18 +3,31 @@ import { celebrate } from 'celebrate';
+import { 
+  getRecommendations, 
+  generateNewRecommendations, 
+  updateRecommendationStatus, 
+  getRecommendationStats, 
+  deleteRecommendation 
+  updateRecommendationStatus,
+  getRecommendationStats,
+  deleteRecommendation
+} from '../controllers/recommendationController.js';
+import { updateRecommendationSchema } from '../validators/recommendationSchemas.js';
+import { 
+  updateRecommendationSchema,
+  getRecommendationsSchema 
+} from '../validators/recommendationSchemas.js';
+import { mongoIdSchema } from '../validators/generalSchemas.js';
+
+const router = Router();
+
+router.get('/', getRecommendations);
+// GET /api/recommendations
+router.get('/', celebrate(getRecommendationsSchema), getRecommendations);
+// POST /api/recommendations/generate
+router.post('/generate', generateNewRecommendations);
+// GET /api/recommendations/stats
+router.get('/stats', getRecommendationStats);
+router.put('/:id', celebrate(updateRecommendationSchema), updateRecommendationStatus);
+router.delete('/:id', deleteRecommendation);
+
+export default router;
+// PUT /api/recommendations/:id
+router.put('/:id', celebrate({...mongoIdSchema, ...updateRecommendationSchema}), updateRecommendationStatus);
+// DELETE /api/recommendations/:id
+router.delete('/:id', celebrate(mongoIdSchema), deleteRecommendation);
+export default router;
+‎backend/routes/userRoutes.js‎
+Original file line number	Diff line number	Diff line change
+@@ -4,14 +4,16 @@ import {
+  getMyProfile, 
+  updateMyProfile 
+} from '../controllers/userController.js';
+import { profileUpdateSchema } from '../validators/profileSchemas.js';
+import { 
+  profileUpdateSchema 
+} from '../validators/profileSchemas.js';
+
+const router = Router();
+
+// GET /api/users/profile
+router.get('/profile', getMyProfile);
+
+// PUT /api/users/profile  
+// PUT /api/users/profile
+router.put('/profile', celebrate(profileUpdateSchema), updateMyProfile);
+
+export default router;
+export default router;
+‎backend/routes/workoutRoutes.js‎
+Original file line number	Diff line number	Diff line change
+@@ -4,19 +4,36 @@ import {
+  createWorkout, 
+  getWorkouts, 
+  getWorkoutById, 
+  updateWorkout, 
+  updateWorkout,
+  completeWorkout, 
+  deleteWorkout 
+} from '../controllers/workoutController.js';
+import { createWorkoutSchema, updateWorkoutSchema, completeWorkoutSchema } from '../validators/workoutSchemas.js';
+import { 
+  createWorkoutSchema, 
+  updateWorkoutSchema, 
+  completeWorkoutSchema,
+  getWorkoutsSchema 
+} from '../validators/workoutSchemas.js';
+import { mongoIdSchema } from '../validators/generalSchemas.js';
+
+const router = Router();
+
+// POST /api/workouts
+router.post('/', celebrate(createWorkoutSchema), createWorkout);
+router.get('/', getWorkouts);
+router.get('/:id', getWorkoutById);
+router.put('/:id', celebrate(updateWorkoutSchema), updateWorkout);
+router.put('/:id/complete', celebrate(completeWorkoutSchema), completeWorkout);
+router.delete('/:id', deleteWorkout);
+
+export default router;
+// GET /api/workouts
+router.get('/', celebrate(getWorkoutsSchema), getWorkouts);
+// GET /api/workouts/:id
+router.get('/:id', celebrate(mongoIdSchema), getWorkoutById);
+// PUT /api/workouts/:id
+router.put('/:id', celebrate({...mongoIdSchema, ...updateWorkoutSchema}), updateWorkout);
+// PUT /api/workouts/:id/complete
+router.put('/:id/complete', celebrate({...mongoIdSchema, ...completeWorkoutSchema}), completeWorkout);
+// DELETE /api/workouts/:id
+router.delete('/:id', celebrate(mongoIdSchema), deleteWorkout);
+export default router;
+‎backend/server.js‎
+Original file line number	Diff line number	Diff line change
+@@ -8,50 +8,69 @@ import { errors as celebrateErrors } from 'celebrate';
+import { config } from './config/env.js';
+import { connectDB } from './config/db.js';
+
+//routes
+import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import biometricRoutes from './routes/biometricRoutes.js';
+import recommendationRoutes from './routes/recommendationRoutes.js';
+import workoutRoutes from './routes/workoutRoutes.js';
+import mealPlanRoutes from './routes/mealPlanRoutes.js';
+import communityRoutes from './routes/communityRoutes.js';
+import gamificationRoutes from './routes/gamificationRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
+import analyticsRoutes from './routes/analyticsRoutes.js';
+import { requireAuth } from './middleware/auth.js';
+
+const app = express();
+
+// Database connection
+connectDB();
+
+// Middleware
+app.use(helmet());
+app.use(morgan('dev'));
+app.use(
+  cors({
+    origin: config.clientOrigin,
+    credentials: true,
+  })
+);
+app.use(cors({ origin: config.clientOrigin, credentials: true }));
+app.use(express.json());
+app.use(cookieParser());
+
+app.get('/health', (req, res) => res.json({ ok: true, env: config.nodeEnv }));
+// Health check
+app.get('/health', (req, res) => res.json({ ok: true, timestamp: new Date().toISOString() }));
+
+// Public routes
+‎backend/validators/notificationSchemas.js‎
+Original file line number	Diff line number	Diff line change
+@@ -0,0 +1,41 @@
+import { Joi, Segments } from 'celebrate';
+export const createReminderSchema = {
+  [Segments.BODY]: Joi.object({
+    title: Joi.string().max(100).required(),
+    message: Joi.string().max(300).required(),
+    scheduledFor: Joi.date().iso().min('now').required(),
+    recurring: Joi.object({
+      enabled: Joi.boolean().default(false),
+      frequency: Joi.string().valid('daily', 'weekly', 'monthly'),
+      days: Joi.array().items(Joi.number().min(0).max(6)), // 0 = Sunday
+      endDate: Joi.date().iso()
+    })
+  })
+};
+export const getNotificationsSchema = {
+  [Segments.QUERY]: Joi.object({
+    type: Joi.string().valid('reminder', 'achievement', 'social', 'system'),
+    read: Joi.boolean(),
+    limit: Joi.number().min(1).max(50).default(20)
+  })
+};
+export const updateNotificationSchema = {
+  [Segments.PARAMS]: Joi.object({
+    id: Joi.string().required()
+  }),
+  [Segments.BODY]: Joi.object({
+    read: Joi.boolean(),
+    title: Joi.string().max(100),
+    message: Joi.string().max(300),
+    scheduledFor: Joi.date().iso()
+  }).min(1)
+};
+export const markMultipleAsReadSchema = {
+  [Segments.BODY]: Joi.object({
+    notificationIds: Joi.array().items(Joi.string()).min(1).max(50).required()
+  })
+};
+‎backend/validators/profileSchemas.js‎
+Original file line number	Diff line number	Diff line change
+@@ -7,27 +7,20 @@ const profileSchema = Joi.object({
+  gender: Joi.string().valid('male', 'female', 'other'),
+  heightCm: Joi.number().min(50).max(300),
+  weightKg: Joi.number().min(20).max(500),
+  activityLevel: Joi.string().valid('sedentary', 'light', 'moderate', 'active', 'very_active'),
+  conditions: Joi.array().items(Joi.string()),
+  allergens: Joi.array().items(Joi.string()),
+  preferences: Joi.object({
+    diet: Joi.string().valid('none', 'vegetarian', 'vegan', 'keto', 'paleo', 'mediterranean').default('none'),
+    cuisineLikes: Joi.array().items(Joi.string()),
+    dislikes: Joi.array().items(Joi.string())
+  })
+  activityLevel: Joi.string().valid('sedentary', 'light', 'moderate', 'active', 'very_active')
+});
+
+const goalSchema = Joi.object({
+  type: Joi.string().valid('weight', 'steps', 'sleep', 'calories', 'custom').required(),
+  type: Joi.string().valid('weight', 'steps', 'sleep', 'calories').required(),
+  target: Joi.number().required(),
+  unit: Joi.string().required(),
+  unit: Joi.string().max(20),
+  deadline: Joi.date().iso()
+});
+
+export const profileUpdateSchema = {
+  [Segments.BODY]: Joi.object({
+    displayName: Joi.string().max(50),
+    displayName: Joi.string().min(2).max(50),
+    profile: profileSchema,
+    goals: Joi.array().items(goalSchema)
+  }).min(1)
+};
+};
+‎backend/validators/recommendationSchemas.js‎
+Original file line number	Diff line number	Diff line change
+@@ -5,11 +5,19 @@ export const updateRecommendationSchema = {
+    id: Joi.string().required()
+  }),
+  [Segments.BODY]: Joi.object({
+    status: Joi.string().valid('pending', 'accepted', 'dismissed', 'completed'),
+    status: Joi.string().valid('pending', 'accepted', 'dismissed', 'completed').required(),
+    feedback: Joi.object({
+      helpful: Joi.boolean(),
+      rating: Joi.number().min(1).max(5),
+      comment: Joi.string().max(500)
+    })
+  }).min(1)
+  })
+};
+export const getRecommendationsSchema = {
+  [Segments.QUERY]: Joi.object({
+    type: Joi.string().valid('workout', 'meal', 'wellness', 'goal'),
+    status: Joi.string().valid('pending', 'accepted', 'dismissed', 'completed'),
+    limit: Joi.number().min(1).max(50).default(10)
+  })
+};
+‎backend/validators/workoutSchemas.js‎
+Original file line number	Diff line number	Diff line change
+@@ -1,29 +1,27 @@
+import { Joi, Segments } from 'celebrate';
+
+const exerciseSchema = Joi.object({
+  name: Joi.string().required(),
+  type: Joi.string().valid('cardio', 'strength', 'flexibility', 'balance').required(),
+  duration: Joi.number().min(1).max(300),
+  name: Joi.string().max(100).required(),
+  type: Joi.string().valid('cardio', 'strength', 'flexibility').required(),
+  duration: Joi.number().min(1).max(300), // minutes
+  sets: Joi.number().min(1).max(20),
+  reps: Joi.number().min(1).max(200),
+  weight: Joi.number().min(0).max(500),
+  distance: Joi.number().min(0).max(100),
+  weight: Joi.number().min(0).max(500), // kg
+  distance: Joi.number().min(0).max(100), // km
+  calories: Joi.number().min(0).max(2000),
+  instructions: Joi.string().max(1000),
+  muscleGroups: Joi.array().items(Joi.string())
+  instructions: Joi.string().max(1000)
+});
+
+export const createWorkoutSchema = {
+  [Segments.BODY]: Joi.object({
+    name: Joi.string().required().max(100),
+    type: Joi.string().valid('cardio', 'strength', 'flexibility', 'hiit', 'yoga', 'custom').required(),
+    name: Joi.string().max(100).required(),
+    type: Joi.string().valid('cardio', 'strength', 'flexibility', 'hiit', 'yoga').required(),
+    difficulty: Joi.string().valid('beginner', 'intermediate', 'advanced').required(),
+    duration: Joi.number().required().min(5).max(300),
+    duration: Joi.number().min(5).max(300).required(), // minutes
+    exercises: Joi.array().items(exerciseSchema).min(1).required(),
+    estimatedCalories: Joi.number().min(0).max(2000),
+    equipment: Joi.array().items(Joi.string()),
+    tags: Joi.array().items(Joi.string()),
+    isTemplate: Joi.boolean().default(false)
+    equipment: Joi.array().items(Joi.string().max(50)),
+    tags: Joi.array().items(Joi.string().max(30))
+  })
+};
+
+@@ -33,14 +31,13 @@ export const updateWorkoutSchema = {
+  }),
+  [Segments.BODY]: Joi.object({
+    name: Joi.string().max(100),
+    type: Joi.string().valid('cardio', 'strength', 'flexibility', 'hiit', 'yoga', 'custom'),
+    type: Joi.string().valid('cardio', 'strength', 'flexibility', 'hiit', 'yoga'),
+    difficulty: Joi.string().valid('beginner', 'intermediate', 'advanced'),
+    duration: Joi.number().min(5).max(300),
+    exercises: Joi.array().items(exerciseSchema),
+    estimatedCalories: Joi.number().min(0).max(2000),
+    equipment: Joi.array().items(Joi.string()),
+    tags: Joi.array().items(Joi.string()),
+    rating: Joi.number().min(1).max(5)
+    equipment: Joi.array().items(Joi.string().max(50)),
+    tags: Joi.array().items(Joi.string().max(30))
+  }).min(1)
+};
+
+@@ -50,6 +47,16 @@ export const completeWorkoutSchema = {
+  }),
+  [Segments.BODY]: Joi.object({
+    rating: Joi.number().min(1).max(5),
+    completedAt: Joi.date().iso()
+    completedAt: Joi.date().iso(),
+    notes: Joi.string().max(500)
+  })
+};
+export const getWorkoutsSchema = {
+  [Segments.QUERY]: Joi.object({
+    type: Joi.string().valid('cardio', 'strength', 'flexibility', 'hiit', 'yoga'),
+    difficulty: Joi.string().valid('beginner', 'intermediate', 'advanced'),
+    completed: Joi.boolean(),
+    limit: Joi.number().min(1).max(100).default(50)
+  })
+};
