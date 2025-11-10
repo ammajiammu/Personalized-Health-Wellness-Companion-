@@ -1,0 +1,1102 @@
+
+Original file line number	Diff line number	Diff line change
+@@ -0,0 +1,6 @@
+module.exports = {
+  presets: [
+    ['@babel/preset-env', { targets: { node: 'current' } }],
+    ['@babel/preset-react', { runtime: 'automatic' }],
+  ],
+};
+‎frontend/jest.config.cjs‎
+Original file line number	Diff line number	Diff line change
+@@ -0,0 +1,7 @@
+module.exports = {
+  testEnvironment: 'jsdom',
+  transform: {
+    '^.+\\.[jt]sx?$': 'babel-jest',
+  },
+  moduleFileExtensions: ['js', 'jsx'],
+};
+‎frontend/package-lock.json‎
+Some generated files are not rendered by default. Learn more about customizing how changed files appear on GitHub.
+‎frontend/package.json‎
+Original file line number	Diff line number	Diff line change
+@@ -2,32 +2,40 @@
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "jest"
+  },
+  "dependencies": {
+    "axios": "^1.12.0",
+    "chart.js": "^4.5.0",
+    "react": "^19.1.1",
+    "react-chartjs-2": "^5.3.0",
+    "react-dom": "^19.1.1",
+    "react-router-dom": "^7.8.2"
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.4",
+    "@babel/preset-env": "^7.28.3",
+    "@babel/preset-react": "^7.27.1",
+    "@eslint/js": "^9.33.0",
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^16.3.0",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react-swc": "^4.0.0",
+    "autoprefixer": "^10.4.21",
+    "babel-jest": "^30.2.0",
+    "eslint": "^9.33.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.3.0",
+    "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.2.0",
+    "postcss": "^8.5.6",
+    "react-router-dom": "^7.9.3",
+    "tailwindcss": "^3.4.17",
+    "vite": "^7.1.2"
+  }
+‎frontend/src/App.jsx‎
+Original file line number	Diff line number	Diff line change
+@@ -1,134 +1,50 @@
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import Navbar from './components/common/Navbar';
+import ProtectedRoute from './routes/ProtectedRoute';
+import PublicRoute from './routes/PublicRoute';
+import Navbar from './components/common/Navbar.jsx';
+import Home from './pages/Home.jsx';
+import Workouts from "./pages/Workouts";
+import WorkoutDetail from "./pages/WorkoutDetail";
+import MealPlans from "./pages/MealPlans";
+import MealPlanDetail from "./pages/MealPlanDetail";
+import Welcome from './pages/Welcome.jsx';
+import Login from './components/auth/Login.jsx';
+import Signup from './components/auth/Signup.jsx';
+import Dashboard from './pages/Dashboard.jsx';
+import ProfileForm from './components/profile/ProfileForm.jsx';
+import DataInput from './pages/DataInput.jsx';
+import ProtectedRoute from './routes/ProtectedRoute.jsx';
+import PublicRoute from './routes/PublicRoute.jsx';
+import Premium from "./pages/Premium.jsx";
+import Community from './pages/Community.jsx';
+import Gamification from './pages/Gamification.jsx';
+import NotificationSettings from './pages/NotificationSettings.jsx';
+
+// Existing pages
+import Home from './pages/Home';
+import Welcome from './pages/welcome';
+import Dashboard from './pages/Dashboard';
+import DataInput from './pages/DataInput';
+import Login from './components/auth/Login';
+import Signup from './components/auth/Signup';
+import ProfileForm from './components/profile/ProfileForm';
+// 🆕 NEW Week 2 pages
+import Recommendations from './pages/Recommendations';
+import Workouts from './pages/Workouts';
+import WorkoutDetail from './pages/WorkoutDetail';
+import MealPlans from './pages/MealPlans';
+import MealPlanDetail from './pages/MealPlanDetail';
+import './App.css';
+function App() {
+export default function App() {
+  return (
+    <AuthProvider>
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <main>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Home />} />
+            <Route 
+              path="/login" 
+              element={
+                <PublicRoute>
+                  <Login />
+                </PublicRoute>
+              } 
+            />
+            <Route 
+              path="/signup" 
+              element={
+                <PublicRoute>
+                  <Signup />
+                </PublicRoute>
+              } 
+            />
+    <>
+      <Navbar />
+      <div className="pt-16 min-h-screen bg-gradient-to-br from-emerald-50 to-emerald-100">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          {/* Workouts */}
+        <Route path="/workouts" element={<Workouts />} />
+        <Route path="/workouts/:id" element={<WorkoutDetail />} />
+
+            {/* Protected routes */}
+            <Route 
+              path="/welcome" 
+              element={
+                <ProtectedRoute>
+                  <Welcome />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <ProfileForm />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/data-input" 
+              element={
+                <ProtectedRoute>
+                  <DataInput />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* 🆕 NEW Week 2 routes */}
+            <Route 
+              path="/recommendations" 
+              element={
+                <ProtectedRoute>
+                  <Recommendations />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/workouts" 
+              element={
+                <ProtectedRoute>
+                  <Workouts />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/workouts/:id" 
+              element={
+                <ProtectedRoute>
+                  <WorkoutDetail />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/meal-plans" 
+              element={
+                <ProtectedRoute>
+                  <MealPlans />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/meal-plans/:id" 
+              element={
+                <ProtectedRoute>
+                  <MealPlanDetail />
+                </ProtectedRoute>
+              } 
+            />
+          </Routes>
+        </main>
+        {/* Meal Plans */}
+        <Route path="/meal-plans" element={<MealPlans />} />
+        <Route path="/meal-plans/:id" element={<MealPlanDetail />} />
+          <Route path="/welcome" element={<ProtectedRoute><Welcome /></ProtectedRoute>} />
+          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+          <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfileForm /></ProtectedRoute>} />
+          <Route path="/data-input" element={<ProtectedRoute><DataInput /></ProtectedRoute>} />
+           <Route path="/premium" element={<Premium />} />
+          <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
+          <Route path="/gamification" element={<ProtectedRoute><Gamification /></ProtectedRoute>} />
+          <Route path="/notifications" element={<ProtectedRoute><NotificationSettings /></ProtectedRoute>} />
+        </Routes>
+      </div>
+    </AuthProvider>
+    </>
+  );
+}
+export default App;
+‎frontend/src/components/BadgeCard.jsx‎
+Original file line number	Diff line number	Diff line change
+@@ -0,0 +1,11 @@
+import React from 'react';
+export default function BadgeCard({ title, desc, icon }) {
+  return (
+    <div className="bg-white p-6 rounded-xl shadow text-center hover:shadow-lg transition">
+      <div className="text-5xl mb-3">{icon}</div>
+      <h3 className="text-xl font-semibold text-emerald-700">{title}</h3>
+      <p className="text-gray-600">{desc}</p>
+    </div>
+  );
+}
+‎frontend/src/components/PostCard.jsx‎
+Original file line number	Diff line number	Diff line change
+@@ -0,0 +1,10 @@
+import React from 'react';
+export default function PostCard({ user, text }) {
+  return (
+    <div className="p-4 bg-white rounded shadow">
+      <h4 className="font-semibold text-emerald-700">{user}</h4>
+      <p className="text-gray-700">{text}</p>
+    </div>
+  );
+}
+‎frontend/src/components/ToggleSwitch.jsx‎
+Original file line number	Diff line number	Diff line change
+@@ -0,0 +1,21 @@
+import React from 'react';
+export default function ToggleSwitch({ label, checked, onChange }) {
+  return (
+    <div className="flex items-center justify-between mb-4">
+      <span className="text-gray-700">{label}</span>
+      <button
+        onClick={onChange}
+        className={`w-12 h-6 flex items-center rounded-full p-1 transition ${
+          checked ? 'bg-emerald-600' : 'bg-gray-300'
+        }`}
+      >
+        <div
+          className={`bg-white w-4 h-4 rounded-full shadow transform transition ${
+            checked ? 'translate-x-6' : ''
+          }`}
+        />
+      </button>
+    </div>
+  );
+}
+‎frontend/src/components/common/Navbar.jsx‎
+Original file line number	Diff line number	Diff line change
+@@ -1,50 +1,137 @@
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext.jsx';
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext.jsx";
+
+export default function Navbar() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
+  const NavLink = ({ to, children }) => (
+    <Link
+      to={to}
+      onClick={() => setMenuOpen(false)} // close menu on click
+      className={`block px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200
+        ${pathname === to
+          ? "bg-emerald-600 text-white"
+          : "text-gray-800 hover:bg-emerald-100 hover:text-emerald-700"
+        }`}
+    >
+      {children}
+    </Link>
+  );
+
+  return (
+    <nav className="fixed top-0 left-0 w-full bg-emerald-600 text-white shadow z-50">
+      <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+        <Link to="/" className="text-xl font-bold tracking-wide hover:text-emerald-200">
+          Health & Wellness
+    <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md shadow z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+        {/* Brand */}
+        <Link
+          to="/"
+          className="text-2xl font-extrabold text-emerald-700 tracking-tight"
+        >
+          BioCompanion
+        </Link>
+
+        <div className="flex items-center space-x-4">
+          <Link to="/" className="hover:text-emerald-200">Home</Link>
+          {user ? (
+        {/* Desktop Links */}
+        <div className="hidden md:flex space-x-2">
+          <NavLink to="/">Home</NavLink>
+          {user && (
+            <>
+              <Link to="/dashboard" className="hover:text-emerald-200">Dashboard</Link>
+              <Link to="/profile" className="hover:text-emerald-200">Profile</Link>
+              <Link to="/data-input" className="hover:text-emerald-200">Data Input</Link>
+              {/* 🆕 NEW Week 2 Navigation Links */}
+              <Link to="/recommendations" className="hover:text-emerald-200">Recommendations</Link>
+              <Link to="/workouts" className="hover:text-emerald-200">Workouts</Link>
+              <Link to="/meal-plans" className="hover:text-emerald-200">Meal Plans</Link>
+              <button
+                onClick={handleLogout}
+                className="ml-2 px-3 py-1 rounded bg-red-500 hover:bg-red-600 transition"
+              >
+                Logout
+              </button>
+              <NavLink to="/dashboard">Dashboard</NavLink>
+              <NavLink to="/profile">Profile</NavLink>
+              <NavLink to="/data-input">Data Input</NavLink>
+              <NavLink to="/community">Community</NavLink>
+              <NavLink to="/gamification">Gamification</NavLink>
+              <NavLink to="/notifications">Notifications</NavLink>
+            </>
+          )}
+        </div>
+        {/* Auth Buttons – Desktop */}
+        <div className="hidden md:flex items-center space-x-3">
+          {user ? (
+            <button
+              onClick={logout}
+              className="px-4 py-2 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition"
+            >
+              Logout
+            </button>
+          ) : (
+            <>
+              <Link to="/login" className="hover:text-emerald-200">Login</Link>
+              <Link to="/signup" className="hover:text-emerald-200">Signup</Link>
+              <Link
+                to="/login"
+                className="px-4 py-2 border border-emerald-600 text-emerald-700 rounded-full hover:bg-emerald-50 transition"
+              >
+                Login
+              </Link>
+              <Link
+                to="/signup"
+                className="px-4 py-2 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition"
+              >
+                Sign Up
+              </Link>
+            </>
+          )}
+        </div>
+        {/* Mobile Hamburger */}
+        <button
+          className="md:hidden p-2 text-gray-700 rounded hover:bg-emerald-100 focus:outline-none"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Toggle menu"
+        >
+          {menuOpen ? "✖" : "☰"}
+        </button>
+      </div>
+      {/* Mobile Dropdown */}
+      {menuOpen && (
+        <div className="md:hidden bg-white shadow-lg border-t">
+          <div className="flex flex-col px-4 pt-4 pb-2 space-y-1">
+            <NavLink to="/">Home</NavLink>
+            {user && (
+              <>
+                <NavLink to="/dashboard">Dashboard</NavLink>
+                <NavLink to="/profile">Profile</NavLink>
+                <NavLink to="/data-input">Data Input</NavLink>
+                <NavLink to="/community">Community</NavLink>
+                <NavLink to="/gamification">Gamification</NavLink>
+                <NavLink to="/notifications">Notifications</NavLink>
+              </>
+            )}
+            <div className="mt-3 flex flex-col space-y-2">
+              {user ? (
+                <button
+                  onClick={() => {
+                    logout();
+                    setMenuOpen(false);
+                  }}
+                  className="w-full px-4 py-2 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition"
+                >
+                  Logout
+                </button>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    onClick={() => setMenuOpen(false)}
+                    className="w-full px-4 py-2 border border-emerald-600 text-emerald-700 rounded-full hover:bg-emerald-50 transition text-center"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    onClick={() => setMenuOpen(false)}
+                    className="w-full px-4 py-2 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition text-center"
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+}
+‎frontend/src/context/AuthContext.jsx‎
+Original file line number	Diff line number	Diff line change
+@@ -1,121 +1,25 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { auth as authAPI, users } from '../services/api';
+import React, { createContext, useContext, useState } from "react";
+
+const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Check for existing session on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+          // Try to get user profile to verify token is still valid
+          const response = await users.getProfile();
+          if (response.data.user) {
+            setUser(response.data.user);
+          }
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        localStorage.removeItem('authToken');
+      } finally {
+        setLoading(false);
+      }
+    };
+    checkAuth();
+  }, []);
+  const login = async (credentials) => {
+    try {
+      const response = await authAPI.login(credentials);
+      const { user: userData, accessToken } = response.data;
+      
+      // Store token and user data
+      localStorage.setItem('authToken', accessToken);
+      setUser(userData);
+      
+      return { success: true, user: userData };
+    } catch (error) {
+      console.error('Login error:', error);
+      return { 
+        success: false, 
+        message: error.response?.data?.message || 'Login failed' 
+      };
+    }
+  };
+  const signup = async (userData) => {
+    try {
+      const response = await authAPI.signup(userData);
+      const { user: newUser, accessToken } = response.data;
+      
+      // Store token and user data
+      localStorage.setItem('authToken', accessToken);
+      setUser(newUser);
+      
+      return { success: true, user: newUser };
+    } catch (error) {
+      console.error('Signup error:', error);
+      return { 
+        success: false, 
+        message: error.response?.data?.message || 'Signup failed' 
+      };
+    }
+  const login = (email) => {
+    setUser({ name: "Demo User", email, heightCm: 170 });
+  };
+
+  const logout = async () => {
+    try {
+      await authAPI.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      // Clear local storage and state regardless of API call success
+      localStorage.removeItem('authToken');
+      setUser(null);
+    }
+  const signup = (email) => {
+    setUser({ name: "New User", email, heightCm: 170 });
+  };
+
+  const updateUserProfile = async (profileData) => {
+    try {
+      const response = await users.updateProfile(profileData);
+      const updatedUser = response.data.user;
+      setUser(updatedUser);
+      return { success: true, user: updatedUser };
+    } catch (error) {
+      console.error('Profile update error:', error);
+      return { 
+        success: false, 
+        message: error.response?.data?.message || 'Profile update failed' 
+      };
+    }
+  };
+  const value = {
+    user,
+    loading,
+    login,
+    signup,
+    logout,
+    updateUserProfile,
+    isAuthenticated: !!user
+  };
+  const logout = () => setUser(null);
+
+  return (
+    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{ user, login, signup, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+export const useAuth = () => useContext(AuthContext);
+‎frontend/src/pages/Community.jsx‎
+Original file line number	Diff line number	Diff line change
+@@ -0,0 +1,39 @@
+import React, { useState } from 'react';
+import PostCard from '../components/PostCard.jsx';
+export default function Community() {
+  const [posts, setPosts] = useState([
+    { id: 1, user: 'Alex', text: 'Best pre-workout snack?' },
+    { id: 2, user: 'Jamie', text: 'Anyone tried intermittent fasting?' },
+  ]);
+  const [newPost, setNewPost] = useState('');
+  const addPost = (e) => {
+    e.preventDefault();
+    if (!newPost) return;
+    setPosts([{ id: Date.now(), user: 'You', text: newPost }, ...posts]);
+    setNewPost('');
+  };
+  return (
+    <div className="max-w-4xl mx-auto mt-20 px-4">
+      <h1 className="text-3xl font-bold mb-6 text-emerald-700">Community</h1>
+      <form onSubmit={addPost} className="mb-6 flex gap-3">
+        <input
+          className="flex-1 border rounded px-3 py-2"
+          placeholder="Share something or ask an expert..."
+          value={newPost}
+          onChange={(e) => setNewPost(e.target.value)}
+        />
+        <button className="bg-emerald-600 text-white px-4 py-2 rounded hover:bg-emerald-700">
+          Post
+        </button>
+      </form>
+      <div className="space-y-4">
+        {posts.map((p) => (
+          <PostCard key={p.id} user={p.user} text={p.text} />
+        ))}
+      </div>
+    </div>
+  );
+}
+‎frontend/src/pages/Dashboard.jsx‎
+Large diffs are not rendered by default.
+‎frontend/src/pages/Gamification.jsx‎
+Original file line number	Diff line number	Diff line change
+@@ -0,0 +1,60 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import BadgeCard from "../components/BadgeCard.jsx";
+export default function Gamification() {
+  const navigate = useNavigate();
+  const badges = [
+    {
+      title: "Starter",
+      desc: "Logged your first health metric.",
+      icon: "🌱",
+    },
+    {
+      title: "Consistency",
+      desc: "Tracked activity for 7 days straight.",
+      icon: "🔥",
+    },
+    {
+      title: "Goal Crusher",
+      desc: "Reached a major health milestone.",
+      icon: "🏆",
+    },
+    {
+      title: "Community Hero",
+      desc: "Helped others in the community.",
+      icon: "🤝",
+    },
+  ];
+  const handleBadgeClick = (badgeTitle) => {
+    // Send user to the Premium page; you can pass badge info if needed
+    navigate(`/premium?badge=${encodeURIComponent(badgeTitle)}`);
+  };
+  return (
+    <div className="max-w-6xl mx-auto mt-20 px-4">
+      <h1 className="text-3xl font-bold text-emerald-700 mb-4">
+        Your Achievements
+      </h1>
+      <p className="text-gray-700 mb-10">
+        Earn badges by tracking your progress and engaging with the Bio-Companion
+        community. Click a badge to learn more or upgrade to Premium!
+      </p>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {badges.map((b) => (
+          <div key={b.title} onClick={() => handleBadgeClick(b.title)}>
+            <BadgeCard
+              title={b.title}
+              desc={b.desc}
+              icon={b.icon}
+              className="cursor-pointer hover:scale-105 transition transform"
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+‎frontend/src/pages/HealthGoal.jsx‎
+Original file line number	Diff line number	Diff line change
+@@ -0,0 +1,32 @@
+import React from "react";
+import { Link } from "react-router-dom";
+export default function HealthGoals() {
+  const goals = [
+    { title: "Weight Loss", desc: "Personalized calorie & activity plans" },
+    { title: "Muscle Gain", desc: "Strength training & protein tracking" },
+    { title: "Balanced Meal Plan", desc: "Daily meals designed by nutritionists" },
+    { title: "General Wellness", desc: "Maintain and track a healthy lifestyle" },
+  ];
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-white py-20 px-6">
+      <h1 className="text-4xl font-bold text-center text-emerald-700 mb-12">
+        Choose Your Health Goal
+      </h1>
+      <div className="max-w-5xl mx-auto grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        {goals.map((g) => (
+          <Link
+            key={g.title}
+            to={`/signup?goal=${encodeURIComponent(g.title)}`}
+            className="bg-white p-6 rounded-xl shadow hover:shadow-xl hover:-translate-y-1 transition transform text-center"
+          >
+            <h2 className="text-xl font-semibold text-gray-800 mb-2">{g.title}</h2>
+            <p className="text-gray-600">{g.desc}</p>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+‎frontend/src/pages/Home.jsx‎
+Original file line number	Diff line number	Diff line change
+@@ -1,98 +1,192 @@
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+
+export default function Home() {
+  const [showProfileInfo, setShowProfileInfo] = useState(false);
+  const [showBioInfo, setShowBioInfo] = useState(false);
+  const [showPremiumInfo, setShowPremiumInfo] = useState(false);
+  const navigate = useNavigate();
+  // Handles navigation when a goal card is clicked
+  const handleCardClick = (goal) => {
+    switch (goal) {
+      case "Weight Loss":
+      case "Muscle Gain":
+        navigate("/workouts");
+        break;
+      case "Balanced Meal Plan":
+        navigate("/meal-plans");
+        break;
+      default:
+        navigate("/login");
+        break;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-emerald-100">
+      <header className="max-w-5xl mx-auto text-center px-4 top-20 py-16">
+        <h1 className="text-4xl md:text-5xl font-extrabold text-emerald-700 drop-shadow-sm pt-20">
+          Your Personalized Health & Wellness Partner
+        </h1>
+        <p className="mt-4 text-slate-700 text-lg">
+          Track your biometrics, set goals, and receive AI-powered insights to stay fit and mindful.
+        </p>
+        <div className="mt-6 space-x-3">
+          <Link
+            to="/signup"
+            className="px-6 py-3 bg-emerald-600 text-white font-medium rounded-full shadow hover:bg-emerald-700 transition"
+          >
+            Get Started
+          </Link>
+          <Link
+            to="/login"
+            className="px-6 py-3 bg-white border border-emerald-600 text-emerald-700 font-medium rounded-full shadow hover:bg-emerald-50 transition"
+          >
+            Login
+          </Link>
+    <div className="bg-gray-50">
+      {/* ---------- HERO ---------- */}
+      <section className="relative min-h-screen flex items-center justify-center text-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-800 via-teal-500 to-emerald-400">
+          <img
+            src="/img-1.png"
+            alt="wellness"
+            className="w-full h-full object-cover mix-blend-overlay opacity-50"
+          />
+        </div>
+
+      </header>
+        <div className="relative z-10 max-w-3xl px-6 text-white">
+          <h1 className="text-5xl md:text-6xl font-extrabold leading-tight drop-shadow-2xl">
+            Bio-Companion
+          </h1>
+          <p className="mt-6 text-lg md:text-xl text-white/90 drop-shadow">
+            Your personal health partner — track, learn and grow healthier every
+            day.
+          </p>
+          <div className="mt-8 flex justify-center gap-4">
+            <Link
+              to="/signup"
+              className="px-8 py-3 bg-white text-emerald-700 font-semibold rounded-full shadow hover:bg-gray-100 transition"
+            >
+              Get Started
+            </Link>
+            <Link
+              to="/login"
+              className="px-8 py-3 border border-white text-white rounded-full font-semibold hover:bg-white hover:text-emerald-700 transition"
+            >
+              Login
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ---------- FEATURES ---------- */}
+      <Section title="Everything you need for a healthier life" bg="from-gray-50 to-emerald-50">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          {features.map((f) => (
+            <Card key={f.title} {...f} />
+          ))}
+        </div>
+      </Section>
+
+      <section className="max-w-6xl mx-auto mt-16 grid md:grid-cols-3 gap-8 px-4 pb-16">
+        
+        <div
+          onClick={() => setShowProfileInfo(!showProfileInfo)}
+          className="bg-white rounded-2xl p-6 shadow-md hover:shadow-xl cursor-pointer border-t-4 border-emerald-500 transition"
+        >
+          <h3 className="text-xl font-semibold text-emerald-700">Profiles</h3>
+          <p className="mt-2 text-slate-600">
+            Save goals, health details, and preferences.
+          </p>
+          {showProfileInfo && (
+            <p className="mt-3 text-sm text-slate-500">
+              Create a personalized profile with age, height, weight and
+              wellness goals. Monitor changes for more accurate insights.
+            </p>
+          )}
+      {/* ---------- GOALS ---------- */}
+      <Section title="Pick Your Health Goal" bg="from-gray-50 to-emerald-50">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          {goals.map((g) => (
+            <GoalCard key={g.title} {...g} onClick={() => handleCardClick(g.title)} />
+          ))}
+        </div>
+      </Section>
+
+        <div
+          onClick={() => setShowBioInfo(!showBioInfo)}
+          className="bg-white rounded-2xl p-6 shadow-md hover:shadow-xl cursor-pointer border-t-4 border-emerald-500 transition"
+        >
+          <h3 className="text-xl font-semibold text-emerald-700">Biometrics</h3>
+          <p className="mt-2 text-slate-600">
+            Manually enter or integrate wearable data.
+          </p>
+          {showBioInfo && (
+            <p className="mt-3 text-sm text-slate-500">
+              Connect fitness devices or add heart rate, steps and other
+              health stats to receive tailored AI suggestions.
+            </p>
+          )}
+      {/* ---------- WHY US ---------- */}
+      <Section title="Why Choose Bio-Companion?" bg="white">
+        <div className="grid md:grid-cols-3 gap-8">
+          {whyUs.map((w) => (
+            <Card key={w.title} {...w} />
+          ))}
+        </div>
+      </Section>
+
+      
+        <div
+          onClick={() => setShowPremiumInfo(!showPremiumInfo)}
+          className="bg-white rounded-2xl p-6 shadow-md hover:shadow-xl cursor-pointer border-t-4 border-emerald-500 transition"
+      {/* ---------- CONTACT ---------- */}
+      <Section title="Contact Us" bg="gray-100">
+        <form className="max-w-xl mx-auto text-left space-y-4">
+          <input
+            type="text"
+            placeholder="Your Name"
+            className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          />
+          <input
+            type="email"
+            placeholder="Your Email"
+            className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          />
+          <textarea
+            placeholder="Message"
+            rows="4"
+            className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          />
+          <button
+            type="button"
+            className="px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
+          >
+            Send Message
+          </button>
+        </form>
+      </Section>
+      {/* ---------- FOOTER ---------- */}
+      <footer className="bg-emerald-700 text-white py-16 text-center">
+        <h4 className="text-2xl font-bold mb-4">
+          Ready to take control of your health?
+        </h4>
+        <Link
+          to="/signup"
+          className="px-8 py-3 bg-white text-emerald-700 rounded-full font-semibold hover:bg-gray-100 transition"
+        >
+          <h3 className="text-xl font-semibold text-emerald-700">Recommendations</h3>
+          <p className="mt-2 text-slate-600 font-arial">
+            AI-powered meals & workout plans.
+          </p>
+          {showPremiumInfo && (
+            <div className="mt-3 text-sm text-slate-500">
+              <p>
+                Free daily tips included. Unlock Premium for weekly meal plans,
+                advanced analytics and optional 1-on-1 coaching.
+              </p>
+              <button
+                className="mt-4 px-5 py-2 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition"
+                onClick={() => alert('Upgrade feature coming soon!')}
+              >
+                Upgrade to Premium
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
+          Create Your Free Account
+        </Link>
+        <p className="mt-6 text-sm text-white/80">
+          © {new Date().getFullYear()} Bio-Companion. All rights reserved.
+        </p>
+      </footer>
+    </div>
+  );
+}
+/* ---------- Sub Components ---------- */
+function Section({ title, bg, children }) {
+  return (
+    <section className={`py-24 bg-gradient-to-b ${bg}`}>
+      <div className="max-w-6xl mx-auto px-6">
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-14 text-emerald-900">
+          {title}
+        </h2>
+        {children}
+      </div>
+    </section>
+  );
+}
+function Card({ title, desc, icon }) {
+  return (
+    <div className="bg-white p-8 rounded-xl shadow hover:shadow-xl transition transform hover:-translate-y-1 text-center">
+      <div className="text-4xl mb-4">{icon}</div>
+      <h3 className="text-xl font-semibold mb-2 text-emerald-900">{title}</h3>
+      <p className="text-gray-700">{desc}</p>
+    </div>
+  );
+}
+function GoalCard({ title, desc, icon, onClick }) {
+  return (
+    <div
+      onClick={onClick}
+      className="cursor-pointer bg-white p-8 rounded-xl shadow hover:shadow-2xl transition transform hover:-translate-y-1 hover:scale-105 text-center"
+    >
+      <div className="text-5xl mb-4">{icon}</div>
+      <h3 className="text-xl font-semibold mb-2 text-emerald-900">{title}</h3>
+      <p className="text-gray-700">{desc}</p>
+      <p className="mt-4 text-emerald-600 font-semibold">Click to explore →</p>
+    </div>
+  );
+}
+/* ---------- Static Data ---------- */
+const features = [
+  { title: "Easy Tracking", desc: "Log weight, BMI & activity quickly.", icon: "📊" },
+  { title: "Personal Goals", desc: "Set health targets & see progress.", icon: "🎯" },
+  { title: "AI Insights", desc: "Get smart recommendations.", icon: "🤖" },
+  { title: "Beautiful Charts", desc: "Visualize your journey clearly.", icon: "📈" },
+];
+const goals = [
+  { title: "Weight Loss", desc: "Personalized calorie & activity plans.", icon: "⚖️" },
+  { title: "Muscle Gain", desc: "Strength training & protein tracking.", icon: "💪" },
+  { title: "Balanced Meal Plan", desc: "Daily meals designed by nutritionists.", icon: "🥗" },
+  { title: "General Wellness", desc: "Maintain and track a healthy lifestyle.", icon: "🌿" },
+];
+const whyUs = [
+  { title: "Proven Results", desc: "Thousands have achieved their goals with Bio-Companion.", icon: "🏆" },
+  { title: "AI Powered", desc: "Smart insights keep you on track every day.", icon: "🤖" },
+  { title: "Community Support", desc: "Join a vibrant community to stay motivated.", icon: "🤝" },
+];
+‎frontend/src/pages/NotificationSettings.jsx‎
+Original file line number	Diff line number	Diff line change
+@@ -0,0 +1,58 @@
+import React, { useState } from "react";
+import ToggleSwitch from "../components/ToggleSwitch.jsx";
+export default function NotificationSettings() {
+  const [settings, setSettings] = useState({
+    weight: true,
+    tips: false,
+    community: true,
+    workouts: false,
+    mealPlans: false,
+  });
+  const toggle = (key) => setSettings((s) => ({ ...s, [key]: !s[key] }));
+  return (
+    <div className="max-w-md mx-auto mt-20 bg-white p-8 rounded-xl shadow-md">
+      <h1 className="text-3xl font-bold text-emerald-700 mb-6">
+        Notification Settings
+      </h1>
+      <p className="mb-6 text-gray-700">
+        Manage what kind of updates you’d like to receive.{" "}
+        <span className="font-semibold text-black">
+          You will be notified
+        </span>{" "}
+        according to your preferences below.
+      </p>
+      <div className="space-y-4">
+        <ToggleSwitch
+          label="Daily weight reminder"
+          checked={settings.weight}
+          onChange={() => toggle("weight")}
+        />
+        <ToggleSwitch
+          label="Health tips & articles"
+          checked={settings.tips}
+          onChange={() => toggle("tips")}
+        />
+        <ToggleSwitch
+          label="Community replies"
+          checked={settings.community}
+          onChange={() => toggle("community")}
+        />
+        <ToggleSwitch
+          label="Workout reminders"
+          checked={settings.workouts}
+          onChange={() => toggle("workouts")}
+        />
+        <ToggleSwitch
+          label="Meal plan reminders"
+          checked={settings.mealPlans}
+          onChange={() => toggle("mealPlans")}
+        />
+      </div>
+    </div>
+  );
+}
+‎frontend/src/pages/Premium.jsx‎
+Original file line number	Diff line number	Diff line change
+@@ -0,0 +1,10 @@
+export default function Premium() {
+  return (
+    <div className="max-w-md mx-auto mt-20 text-center">
+      <h1 className="text-3xl font-bold text-emerald-700 mb-4">Premium Features</h1>
+      <p className="text-gray-700">
+        Unlock exclusive insights, advanced analytics, and more.
+      </p>
+    </div>
+  );
+}
+‎frontend/src/routes/ProtectedRoute.jsx‎
+Original file line number	Diff line number	Diff line change
+@@ -1,13 +1,9 @@
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext.jsx';
+import React from "react";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
+export default function ProtectedRoute({ children }) {
+  const { user } = useAuth();
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  if (!user) return <Navigate to="/login" replace />;
+  return children;
+}
+‎frontend/src/routes/PublicRoute.jsx‎
+Original file line number	Diff line number	Diff line change
+@@ -1,13 +1,9 @@
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext.jsx';
+import React from "react";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
+export default function PublicRoute({ children }) {
+  const { user } = useAuth();
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  if (user) return <Navigate to="/welcome" replace />;
+  return children;
+}
+‎frontend/src/tests/Home.test.jsx‎
+Original file line number	Diff line number	Diff line change
+@@ -0,0 +1,12 @@
+import { render, screen } from "@testing-library/react";
+import { BrowserRouter } from "react-router-dom";
+import Home from "../pages/Home";
+test("renders Bio-Companion title", () => {
+  render(
+    <BrowserRouter>
+      <Home />
+    </BrowserRouter>
+  );
+  expect(screen.getByText(/Bio-Companion/i)).toBeInTheDocument()
+});
